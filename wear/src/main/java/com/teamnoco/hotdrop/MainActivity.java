@@ -1,11 +1,15 @@
 package com.teamnoco.hotdrop;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
@@ -71,12 +75,54 @@ public class MainActivity extends Activity implements
                         }
                         else
                         {
-                            Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                                    Uri.parse("http://maps.google.com/maps?saddr=20.344,34.34&daddr=20.5666,45.345"));
-                            startActivity(intent);
+                            // Build an intent for an action to view a map
+                            Log.e("I'm here","asdfasdfsadf");
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW);
+
+                            Uri geoUri = Uri.parse("http://maps.google.com/maps?saddr=42.35892," +
+                                    "-71.05781&daddr=40.756054,-73.986951");
+                            mapIntent.setData(geoUri);
+
+                            PendingIntent mapPendingIntent =
+                                    PendingIntent.getActivity(getApplicationContext(), 0, mapIntent, 0);
+
+                            PendingIntent viewPendingIntent =
+                                    PendingIntent.getActivity(getApplicationContext(), 0, getIntent(), 0);
+
+                           /* NotificationCompat.Builder notificationBuilder =
+                                    new NotificationCompat.Builder(getApplicationContext())
+                                            .setSmallIcon(R.drawable.ic_launcher)
+                                            .setContentTitle("Title")
+                                            .setContentText("Location")
+                                            //.setContentIntent(viewPendingIntent)
+                                            .extend(new NotificationCompat.WearableExtender())
+                                            //.setContentIntent(viewPendingIntent)
+                                            .addAction(R.drawable.ic_launcher,
+                                                    "Map", mapPendingIntent);*/
+
+
+                            NotificationCompat.Builder notificationBuilder =
+                                    new NotificationCompat.Builder(getApplicationContext())
+                                            .setSmallIcon(R.drawable.ic_launcher)
+                                            .setContentTitle("Location")
+                                            .setContentText("Here's the location")
+                                            .setContentIntent(viewPendingIntent)
+                                            .setPriority(Notification.PRIORITY_MAX)
+                                            .addAction(R.drawable.ic_map,
+                                                   "Map", mapPendingIntent)
+                                            .extend(new NotificationCompat.WearableExtender());
                             //
+                        //notificationBuilder.build();
+
+                            NotificationManagerCompat notificationManager =
+                                    NotificationManagerCompat.from(getApplicationContext());
+
+// Build the notification and issues it with notification manager.
+                            notificationManager.notify(999, notificationBuilder.build());
                         }
+
                     }
+
                 });
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -188,6 +234,6 @@ public class MainActivity extends Activity implements
     }
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
+        Log.e("failed","connection");
     }
 }
